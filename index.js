@@ -1,22 +1,28 @@
 console.log("Hello World..!");
 
-// MongoDb connection
-const mongoURI =
-  "mongodb+srv://chalithachenuka123_db_user:12345@cluster0.hdri30p.mongodb.net/?appName=Cluster0";
-
-mongoose.connect(mongoURI).then(() => {
-  console.log("Connected to MongoDB Cluster");
-});
-
 // Imprting Express framework to the project backennd
 import express from "express";
 import mongoose from "mongoose";
 import userRouter from "./routes/UserRouter.js";
 import jwt from "jsonwebtoken";
 import productRouter from "./routes/ProductRouter.js";
+import cors from "cors";
+import dotenv from "dotenv";
+// Load the values of dotenv file
+dotenv.config();
+
+// Mongo URL from .env file to connect to the database
+const MONGOURI = process.env.MONGO_URL;
+
+mongoose.connect(MONGOURI).then(() => {
+  console.log("Connected to MongoDB Cluster");
+});
 
 // Full express application is comming here
 const app = express();
+
+// To enable all requests from the frontend even without auth header
+app.use(cors());
 
 // Adding middlewares to handle json requests
 app.use(express.json());
@@ -28,13 +34,12 @@ app.use((req, res, next) => {
   if (authorizationHeader) {
     // To remove the "Bearer " part in the token comming from the request
     const token = authorizationHeader.replace("Bearer ", "");
-    console.log(token);
 
     // Decrypting the payload
-    jwt.verify(token, "secretKey96$2025", (error, content) => {
+    jwt.verify(token, process.env.JWT_SECRET, (error, content) => {
       if (content == null) {
         console.log("Invalid Token");
-        res.json({
+        res.status(401).json({
           message: "Invalid Token",
         });
       } else {
@@ -51,9 +56,9 @@ app.use((req, res, next) => {
 });
 
 // plug the userRouter
-app.use("/users", userRouter);
+app.use("/api/users", userRouter);
 // plug the productRouter
-app.use("/products", productRouter);
+app.use("/api/products", productRouter);
 
 // Arrow Function
 app.listen(5000, () => {

@@ -1,5 +1,7 @@
 import Product from "../modules/Product.js";
 import { isAdmin } from "./UserController.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Creating a product
 export function createProduct(req, res) {
@@ -20,8 +22,10 @@ export function createProduct(req, res) {
       });
     })
     .catch((error) => {
+      console.error("PRODUCT CREATION ERROR:", error);
+
       res.status(500).json({
-        message: "Error creating product..!",
+        message: "Error creating product!",
         error: error.message,
       });
     });

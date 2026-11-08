@@ -1,6 +1,8 @@
 import User from "../modules/Users.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Get User
 export function getUser(req, res) {
@@ -101,12 +103,13 @@ export function loginUser(req, res) {
         };
 
         // Create a unique web token for authentication process
-        const token = jwt.sign(payLoad, "secretKey96$2025", {
+        const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
           expiresIn: "150h",
         });
         res.json({
           message: "Login Successfull..!",
           token: token,
+          role: user.role,
         });
       } else {
         res.json({
@@ -123,7 +126,7 @@ export function isAdmin(req) {
     return false;
   }
 
-  if (req.user.role != "Admin") {
+  if (req.user.role != "admin") {
     return false;
   }
 
